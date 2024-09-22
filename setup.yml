@@ -1,0 +1,11 @@
+---
+# Main playbook to set up the DevSecOps environment
+
+- name: DevSecOps Environment Setup
+  hosts: localhost
+  become: yes
+
+  roles:
+    - jenkins
+    - sonarqube
+    - nodejs

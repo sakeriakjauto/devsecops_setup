@@ -1,0 +1,52 @@
+---
+# SonarQube setup tasks
+
+# Ensure unzip is installed to handle .zip archives
+- name: Install unzip utility
+  apt:
+    name: unzip
+    state: present
+    update_cache: yes
+
+# Download SonarQube
+- name: Download SonarQube
+  get_url:
+    url: https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.4.0.54424.zip
+    dest: /opt/sonarqube.zip
+    mode: '0644'
+
+# Extract SonarQube
+- name: Extract SonarQube
+  unarchive:
+    src: /opt/sonarqube.zip
+    dest: /opt
+    remote_src: yes
+    extra_opts: [ '-o' ]   # Extract the contents of the zip file with the correct owner
+    creates: /opt/sonarqube-9.4.0.54424   # Prevents re-extraction if the directory already exists
+
+# Configure SonarQube service
+- name: Configure SonarQube systemd service
+  copy:
+    content: |
+      [Unit]
+      Description=SonarQube service
+      After=network.target
+
+      [Service]
+      Type=forking
+      ExecStart=/opt/sonarqube-9.4.0.54424/bin/linux-x86-64/sonar.sh start
+      ExecStop=/opt/sonarqube-9.4.0.54424/bin/linux-x86-64/sonar.sh stop
+      User=root
+      Group=root
+      Restart=on-failure
+
+      [Install]
+      WantedBy=multi-user.target
+    dest: /etc/systemd/system/sonarqube.service
+
+# Start and enable SonarQube service
+- name: Start SonarQube service
+  systemd:
+    name: sonarqube
+    state: started
+    enabled: yes

@@ -1,0 +1,14 @@
+---
+# Node.js and ESLint setup tasks
+
+- name: Install Node.js and npm
+  apt:
+    name:
+      - nodejs
+      - npm
+    state: present
+
+- name: Install ESLint globally
+  npm:
+    name: eslint
+    global: yes
