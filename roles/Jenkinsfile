@@ -1,0 +1,34 @@
+pipeline {
+    agent any  // Use any available Jenkins agent to run this pipeline
+
+    stages {
+        stage('Install Dependencies') {  // Install project dependencies
+            steps {
+                sh 'npm install'  // Run 'npm install' to install Node.js dependencies
+            }
+        }
+
+        stage('Lint Code') {  // Lint the code using ESLint
+            steps {
+                sh 'eslint .'  // Lint the code in the current directory
+            }
+        }
+
+        stage('Run Tests') {  // Run unit tests
+            steps {
+                sh 'npm test'  // Run tests using 'npm test'
+            }
+        }
+
+        stage('SonarQube Analysis') {  // Analyze the code using SonarQube
+            steps {
+                script {
+                    def scannerHome = tool 'SonarQube Scanner'  // Set up SonarQube Scanner
+                    withSonarQubeEnv('SonarQube') {  // Use SonarQube environment
+                        sh "${scannerHome}/bin/sonar-scanner"  // Run SonarQube analysis
+                    }
+                }
+            }
+        }
+    }
+}
